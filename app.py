@@ -16,7 +16,6 @@ import json
 # Configure page
 st.set_page_config(
     page_title="Seattle Disability & Health Insurance Analysis",
-    page_icon="🏥",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -305,19 +304,19 @@ def create_choropleth_map(df, metric_col, title="Choropleth Map"):
     return fig
 
 def main():    # Title and description
-    st.markdown('<h1 class="main-header">🏥 Seattle Disability & Health Insurance Geographic Analysis</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">Seattle Disability & Health Insurance Geographic Analysis</h1>', unsafe_allow_html=True)
     
     st.markdown("""
     **Comprehensive Analysis of Disability and Health Insurance Coverage Across Seattle's Geographic Divisions**
-    
-    This advanced dashboard analyzes American Community Survey (ACS) 5-year data across Seattle's administrative and planning boundaries:
-    
-    📊 **Geographic Coverage:**
+
+    [Ada Carter](https://adacarter.org), University of Washington
+                
+     **Geographic Coverage:**
     - **53 Community Reporting Areas (CRAs)** - Primary administrative boundaries for city services and planning
     - **Urban Centers & Urban Villages (UCUVs)** - High-density growth areas under Seattle's Comprehensive Plan  
     - **7 City Council Districts** - Electoral boundaries ensuring geographic representation
     
-    🔬 **Analysis Methods:**
+    **Analysis Methods:**
     - Statistical correlation and distribution analysis
     - Machine learning clustering for neighborhood classification  
     - Predictive modeling and regression analysis
@@ -327,7 +326,7 @@ def main():    # Title and description
     
     # Key geographic context
     st.info("""
-    💡 **Geographic Context:** Seattle's 53 Community Reporting Areas serve as the foundation for this analysis, 
+    **Geographic Context:** Seattle's 53 Community Reporting Areas serve as the foundation for this analysis, 
     representing distinct neighborhoods and communities. These areas align with city planning efforts and service delivery, 
     while Urban Centers/Villages represent focused growth areas, and Council Districts ensure balanced political representation.
     """)
@@ -337,7 +336,7 @@ def main():    # Title and description
     if df is None:
         return
       # === SEATTLE GEOGRAPHIC DIVISIONS ===
-    st.markdown('<h2 class="section-header">🗺️ Seattle Geographic Organization</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Seattle Geographic Organization</h2>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     
@@ -372,7 +371,7 @@ def main():    # Title and description
         """)
     
     # Advanced filtering section
-    st.markdown('<h3 style="color: #2c3e50;">🔍 Data Filtering Options</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #2c3e50;">Data Filtering Options</h3>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     
@@ -408,53 +407,12 @@ def main():    # Title and description
       # Calculate advanced metrics
     metrics_df = calculate_advanced_metrics(filtered_df)
     
-    # Perform clustering analysis
-    clustered_df, scaler = perform_clustering_analysis(filtered_df)
-    
-    # Ensure we have all required columns with the right data
-    if 'Neighborhood Name' not in clustered_df.columns and 'Neighborhood Name' in filtered_df.columns:
-        # Need to merge with original df to get the missing columns
-        clustered_df = pd.merge(
-            clustered_df,
-            filtered_df[['Neighborhood Name', 'Neighborhood Type', 'Population 18 years and Over']],
-            left_index=True,
-            right_index=True,
-            how='left'
-        )
-        
-    st.write("**Clustering Data Preview:**")
-    st.dataframe(clustered_df.head(3))
-      # Check clustering results
-    if 'Cluster' in clustered_df.columns:
-        cluster_counts = clustered_df['Cluster'].value_counts()
-        print(f"Cluster distribution: {dict(cluster_counts)}")
-        st.write(f"**Debug Info:** {len(clustered_df)} areas clustered into {len(cluster_counts)} clusters")
-        
-        # Create example debug data to ensure the plot works
-        debug_df = pd.DataFrame({
-            'Disability_Rate': [10, 15, 20, 25, 30],
-            'Uninsured_Rate': [5, 10, 15, 20, 25],
-            'Population 18 years and Over': [1000, 2000, 3000, 4000, 5000],
-            'Neighborhood Type': ['CRA', 'CRA', 'District', 'UCUV', 'UCUV'],
-            'Neighborhood Name': ['Test Area 1', 'Test Area 2', 'Test Area 3', 'Test Area 4', 'Test Area 5'],
-            'Household_Disability_Rate': [8, 12, 16, 20, 24],
-            'Elderly_Disability_Rate': [15, 20, 25, 30, 35],
-            'Working_Age_Disability_Rate': [7, 9, 11, 13, 15],
-            'Cluster': [0, 0, 1, 1, 2]
-        })
-        st.write("**Sample Data (For Debugging):**")
-        st.dataframe(debug_df.head(3))
-    else:
-        print("No clustering data available")
-        st.error("No clustering data available. Debug information: " + str(clustered_df.columns.tolist()))
-      
     # Calculate correlations
     correlation_matrix = calculate_correlations(filtered_df)
     
-    # Perform regression analysis
     regression_results, regression_df = perform_regression_analysis(filtered_df)
       # === EXECUTIVE SUMMARY DASHBOARD ===
-    st.markdown('<h2 class="section-header">📊 Executive Summary Dashboard</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Descriptive Statistics</h2>', unsafe_allow_html=True)
     
     # Geographic distribution summary
     geographic_summary = filtered_df['Neighborhood Type'].value_counts()
@@ -478,13 +436,11 @@ def main():    # Title and description
     
     with col2:
         avg_disability_rate = metrics_df['Disability_Rate'].mean()
-        disability_trend = "↗️" if avg_disability_rate > 10 else "↘️"
-        st.metric("Avg Disability Rate", f"{avg_disability_rate:.1f}%", delta=disability_trend)
+        st.metric("Avg Disability Rate", f"{avg_disability_rate:.1f}%")
     
     with col3:
         avg_uninsured_rate = metrics_df['Uninsured_Rate'].mean()
-        uninsured_trend = "↗️" if avg_uninsured_rate > 8 else "↘️"
-        st.metric("Avg Uninsured Rate", f"{avg_uninsured_rate:.1f}%", delta=uninsured_trend)
+        st.metric("Avg Uninsured Rate", f"{avg_uninsured_rate:.1f}%")
     
     with col4:
         high_risk_areas = len(metrics_df[(metrics_df['Disability_Rate'] > metrics_df['Disability_Rate'].quantile(0.75)) & 
@@ -494,11 +450,9 @@ def main():    # Title and description
     
     with col5:
         correlation_strength = abs(correlation_matrix.loc['Disability_Rate', 'Uninsured_Rate'])
-        correlation_desc = "Strong" if correlation_strength > 0.7 else "Moderate" if correlation_strength > 0.4 else "Weak"
-        st.metric("Disability-Uninsured Correlation", f"{correlation_strength:.3f}", delta=correlation_desc)
+        st.metric("Disability-Uninsured Correlation", f"{correlation_strength:.3f}")
     
-    # === ADVANCED STATISTICAL ANALYSIS ===
-    st.markdown('<h2 class="section-header">🔬 Advanced Statistical Analysis</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header"> Exploratory Analysis</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
@@ -543,115 +497,56 @@ def main():    # Title and description
         
         fig_dist.update_layout(height=500, title_text="Statistical Distributions", showlegend=False)
         st.plotly_chart(fig_dist, use_container_width=True)
-      # === MACHINE LEARNING CLUSTERING ANALYSIS ===
-    st.markdown('<h2 class="section-header">🤖 Geographic Pattern Recognition & Cluster Analysis</h2>', unsafe_allow_html=True)
+    # === MACHINE LEARNING CLUSTERING ANALYSIS ===
+    # Perform clustering analysis for graphs
+    clustered_df, scaler = perform_clustering_analysis(filtered_df)
+    st.markdown('<h2 class="section-header">Cluster Analysis</h2>', unsafe_allow_html=True)
     
-    st.markdown("""
-    **Machine Learning Analysis of Health Patterns Across Seattle's Administrative Boundaries**
-    
+    st.markdown("""    
     This clustering analysis identifies natural groupings of Seattle's geographic areas based on health indicators, 
-    revealing patterns that transcend traditional administrative boundaries and inform strategic planning.
+    showing patterns that can inform what granularity of analysis is most effective for policy planning and help detect outliers or anomalous communities in need of extra aid.
     """)
-      # Large cluster visualization with enhanced geographic context
+    # Cluster visualizations per geographic division
     if 'Cluster' in clustered_df.columns and len(clustered_df) > 1:
-        # Debug information
-        st.info(f"Clustering analysis found {len(clustered_df['Cluster'].unique())} clusters across {len(clustered_df)} geographic areas")
-        
-        # Use a colorblind-friendly palette
-        cluster_colors = px.colors.qualitative.Plotly 
-        
-        # Convert cluster to string to ensure discrete colors
+        cluster_colors = px.colors.qualitative.Plotly
         clustered_df['Cluster_Label'] = clustered_df['Cluster'].astype(str).apply(lambda x: f'Cluster {x}')
-        
-        # Ensure all required columns exist
-        required_columns = ['Disability_Rate', 'Uninsured_Rate', 'Population 18 years and Over', 
-                           'Neighborhood Type', 'Neighborhood Name', 'Household_Disability_Rate', 
-                           'Elderly_Disability_Rate', 'Working_Age_Disability_Rate']
-        
-        missing_columns = [col for col in required_columns if col not in clustered_df.columns]
-        
-        if missing_columns:
-            st.warning(f"Missing columns for clustering visualization: {', '.join(missing_columns)}")
-            st.write("Available columns:", ", ".join(clustered_df.columns))
-        else:            # Create a more robust scatter plot that won't fail with missing data
-            try:
-                # Simple version first to debug
-                fig_cluster = px.scatter(
-                    clustered_df,
-                    x='Disability_Rate',
-                    y='Uninsured_Rate',
-                    color='Cluster_Label',
-                    title="Health Pattern Clusters Across Seattle's Administrative Boundaries"
-                )
-                
-                # If that works, try the full version with more features
-                if len(clustered_df) > 0:
-                    hover_data = {}
-                    for col in ['Neighborhood Type', 'Household_Disability_Rate', 'Elderly_Disability_Rate', 
-                               'Working_Age_Disability_Rate', 'Population 18 years and Over']:
-                        if col in clustered_df.columns:
-                            if 'Rate' in col:
-                                hover_data[col] = ':.1f'
-                            elif 'Population' in col:
-                                hover_data[col] = ':,'
-                            else:
-                                hover_data[col] = True
-                    
-                    # Enhanced visualization
-                    fig_cluster = px.scatter(
-                        clustered_df,
+        # Define mapping of type codes to labels (use 'CD' per CSV for City Council Districts)
+        type_map = {
+            'CRA': 'Community Reporting Areas (CRAs)',
+            'UCUV': 'Urban Centers & Urban Villages (UCUVs)',
+            'CD': 'City Council Districts'
+        }
+        cols = st.columns(3)
+        for idx, (t, label) in enumerate(type_map.items()):
+            df_t = clustered_df[clustered_df['Neighborhood Type'] == t]
+            with cols[idx]:
+                st.subheader(label)
+                if df_t.empty:
+                    st.write("No data available")
+                else:
+                    fig = px.scatter(
+                        df_t,
                         x='Disability_Rate',
                         y='Uninsured_Rate',
                         color='Cluster_Label',
-                        size='Population 18 years and Over' if 'Population 18 years and Over' in clustered_df.columns else None,
-                        symbol='Neighborhood Type' if 'Neighborhood Type' in clustered_df.columns else None,
-                        hover_name='Neighborhood Name' if 'Neighborhood Name' in clustered_df.columns else None,
-                        hover_data=hover_data,
-                        title="Health Pattern Clusters Across Seattle\'s Administrative Boundaries<br>Symbols indicate geographic boundary type",
+                        size='Population 18 years and Over',
+                        hover_name='Neighborhood Name',
+                        title=' ',
                         labels={
-                            'Disability_Rate': 'Disability Rate (%)', 
+                            'Disability_Rate': 'Disability Rate (%)',
                             'Uninsured_Rate': 'Uninsured Rate (%)',
-                            'Cluster_Label': 'Health Pattern Cluster',
-                            'Neighborhood Type': 'Administrative Boundary Type'
+                            'Cluster_Label': 'Cluster'
                         },
                         color_discrete_sequence=cluster_colors,
-                        height=700
+                        height=600
                     )
-            
-            except Exception as e:
-                st.error(f"Error creating cluster visualization: {str(e)}")
-                # Create a basic scatter plot as fallback
-                fig_cluster = px.scatter(
-                    clustered_df,
-                    x='Disability_Rate',
-                    y='Uninsured_Rate',
-                    title="Health Pattern Clusters (Basic View - Error in Enhanced View)"
-                )
-        
-        # Customize the plot
-        fig_cluster.update_traces(
-            marker=dict(
-                line=dict(width=1, color='white'),
-                opacity=0.8,
-                size=clustered_df['Population 18 years and Over']/1000  # Scale for visibility
-            )
-        )
-        
-        fig_cluster.update_layout(
-            title_font_size=16,
-            xaxis_title_font_size=14,
-            yaxis_title_font_size=14,
-            legend_title_font_size=12,
-            legend=dict(
-                orientation="v",
-                yanchor="top",
-                y=1,
-                xanchor="left",
-                x=1.02
-            )
-        )
-        
-        st.plotly_chart(fig_cluster, use_container_width=True)
+                    fig.update_layout(
+                        xaxis_title="Disability Rate (%)",
+                        yaxis_title="Uninsured Rate (%)",
+                        legend_title="Cluster",
+                        title_font_size=14
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
           # Enhanced cluster summary with geographic breakdown
         col1, col2 = st.columns(2)
         
@@ -699,7 +594,7 @@ def main():    # Title and description
                 pass # Added pass
         
         # Policy implications for clusters
-        st.markdown("### 🎯 Strategic Planning Implications by Cluster")
+        st.markdown("### Strategic Planning Implications by Cluster")
         
         cluster_policies = []
         for cluster_id in sorted(clustered_df['Cluster'].unique()):
@@ -733,7 +628,7 @@ def main():    # Title and description
         st.dataframe(policy_df, use_container_width=True, hide_index=True)
     
     # === REGRESSION ANALYSIS ===
-    st.markdown('<h2 class="section-header">📊 Predictive Regression Analysis</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Predictive Regression Analysis</h2>', unsafe_allow_html=True)
     
     # Regression model comparison
     col1, col2, col3 = st.columns(3)
@@ -851,7 +746,7 @@ def main():    # Title and description
         st.plotly_chart(fig_importance, use_container_width=True)
     
     # Regression insights
-    st.markdown("### 🔍 Regression Model Insights")
+    st.markdown("### Regression Model Insights")
     
     col1, col2 = st.columns(2)
     
@@ -893,7 +788,7 @@ def main():    # Title and description
         st.write(f"• **Best prediction accuracy:** {max(disability_model['r2'], uninsured_model['r2'])*100:.1f}% of variance explained")
     
     # === COMPREHENSIVE VISUALIZATION SUITE ===
-    st.markdown('<h2 class="section-header">📈 Comprehensive Visualization Suite</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Comprehensive Visualization Suite</h2>', unsafe_allow_html=True)
     
     # First row of visualizations
     col1, col2 = st.columns(2)
@@ -988,7 +883,7 @@ def main():    # Title and description
         )
         st.plotly_chart(fig_poverty_65_plus, use_container_width=True)
       # === NEIGHBORHOOD RANKINGS AND COMPARISONS ===
-    st.markdown('<h2 class="section-header">🏘️ Geographic Area Performance Analysis</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Geographic Area Performance Analysis</h2>', unsafe_allow_html=True)
     
     st.markdown("""
     **Ranking Analysis Across Seattle's Administrative Boundaries**
@@ -1065,7 +960,7 @@ def main():    # Title and description
         These areas may benefit from targeted health services and insurance enrollment programs.
         """)
       # === RISK ASSESSMENT MATRIX ===
-    st.markdown('<h2 class="section-header">⚠️ Geographic Risk Assessment Matrix</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Geographic Risk Assessment Matrix</h2>', unsafe_allow_html=True)
     
     st.markdown("""
     **Health Risk Quadrant Analysis Across Seattle's Administrative Boundaries**
@@ -1180,7 +1075,7 @@ def main():    # Title and description
     🟢 **Low-Risk Areas**: Can serve as models for best practices and may have capacity to support neighboring high-risk areas through resource sharing or program partnerships.
     """)
       # === GEOGRAPHIC VISUALIZATION ===
-    st.markdown('<h2 class="section-header">🗺️ Seattle Geographic Analysis</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Seattle Geographic Analysis</h2>', unsafe_allow_html=True)
     
     # Geographic context information
     st.markdown("""
@@ -1301,23 +1196,27 @@ def main():    # Title and description
                 bottom_5.assign(Category='Bottom 5 (Lowest Need)')
             ])
             
+            # Bar plot of highest vs lowest need, color-coded by geographic type
             fig_comparison = px.bar(
                 comparison_data,
                 x='Neighborhood Name',
                 y=selected_metric,
-                color='Category',
-                pattern_shape='Neighborhood Type',
-                title=f"Highest vs Lowest Need Areas<br>{map_metrics[selected_metric].split(' - ')[0]}",
-                color_discrete_map={
-                    'Top 5 (Highest Need)': '#e74c3c', 
-                    'Bottom 5 (Lowest Need)': '#2ecc71'
-                },
-                hover_data={'Neighborhood Type': True},
+                color='Neighborhood Type',
+                title=f"Highest vs Lowest Need Areas: {map_metrics[selected_metric].split(' - ')[0]}",
+                hover_name='Neighborhood Name',
+                hover_data={selected_metric: ':.1f'},
                 height=500
             )
             fig_comparison.update_layout(
                 xaxis_tickangle=45,
-                legend=dict(orientation="h", yanchor="bottom", y=-0.3)
+                legend=dict(
+                    title='Geographic Type',
+                    orientation='h',
+                    yanchor='bottom',
+                    y=-0.25,
+                    xanchor='center',
+                    x=0.5
+                )
             )
             st.plotly_chart(fig_comparison, use_container_width=True)
             
@@ -1335,7 +1234,7 @@ def main():    # Title and description
                 st.write(f"• {geo_type}: {count} areas")
     
     # Geographic disparity analysis
-    st.markdown("### 📊 Geographic Health Disparity Analysis")
+    st.markdown("### Geographic Health Disparity Analysis")
     
     # Calculate disparity metrics across geographic types
     if len(metrics_df['Neighborhood Type'].unique()) > 1:
@@ -1394,8 +1293,9 @@ def main():    # Title and description
         """)
     
     # === DETAILED DATA TABLE ===
-    st.markdown('<h2 class="section-header">📋 Comprehensive Data Table</h2>', unsafe_allow_html=True)
-    
+    st.markdown('<h2 class="section-header">Extended Data Table</h2>', unsafe_allow_html=True)
+
+    st.markdown(" Download this data for yourself! Refuse fascism and save government data from the gross hands of the government!")
     # Create comprehensive table
     display_columns = ['Neighborhood Name', 'Neighborhood Type', 'Population 18 years and Over',
                       'Disability_Rate', 'Uninsured_Rate', 'Household_Disability_Rate',
@@ -1414,7 +1314,7 @@ def main():    # Title and description
     
     st.dataframe(display_df, use_container_width=True, height=400)
       # === STATISTICAL INSIGHTS ===
-    st.markdown('<h2 class="section-header">🔍 Key Statistical & Geographic Insights</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">Key Statistical & Geographic Insights</h2>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -1463,7 +1363,7 @@ def main():    # Title and description
       # Footer with comprehensive data source and methodology information
     st.markdown("---")
     st.markdown("""
-    ### 📊 Data Sources & Methodology
+    ### Data Sources & Methodology
     
     **Primary Data Source:** U.S. Census Bureau American Community Survey (ACS) 5-year estimates  
     
@@ -1487,8 +1387,7 @@ def main():    # Title and description
     **Data Vintage:** 2019-2023 (5-Year Estimates)  
     **Analysis Features:** Interactive geographic mapping, neighborhood comparisons, cluster analysis, risk assessment, statistical modeling
     
-    *This dashboard supports evidence-based health policy and resource allocation decisions across Seattle's diverse geographic and administrative boundaries.*
-    """)
+    **Attribution:** Ada Carter, University of Washington — [adacarter.org](https://adacarter.org)""")
     
     # Additional context
     st.info("""
@@ -1498,3 +1397,4 @@ def main():    # Title and description
 
 if __name__ == "__main__":
     main()
+      # Footer with comprehensive data source and methodology information
